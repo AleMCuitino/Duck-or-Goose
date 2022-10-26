@@ -33,6 +33,7 @@ window.onload = (event) => {
     setFormEventListener(); //set submit for form
 
     searchEl('#mainContainer').addEventListener("click", handleClick(searchEl("#mainContainer"))); //set click for unset fog
+    searchEl('#btn-remove').addEventListener("click", handleClick( searchEl('#btn-remove')));
 
     drawScreen(mainTitle);
 };
@@ -107,6 +108,11 @@ const handleClick = (element) => {
             return () => { // pause carousel       
                 owl.trigger('prev.owl.carousel')
             };
+        
+        case "btn-remove":
+            return () => {        
+                deleteSacrifice(1666682362204)
+            };
     }
 };
 
@@ -134,8 +140,9 @@ const setFormEventListener = () => {
                     surnameOne: form[1].value,
                     surnameTwo: ""
                 }
+
                 const obj = {
-                    id: sacrifices.length,
+                    id: Date.now(),
                     name: form[0].value,
                     surnames,
                     age: 0,
@@ -144,7 +151,6 @@ const setFormEventListener = () => {
                 };
                 sacrifices.push(obj);
 
-                console.log(sacrifices)
                 break;
         };
     });
@@ -159,8 +165,8 @@ const startKilling = () => {
 
 
     sacrifices.forEach(el => {
-        setData.push(new DomElement("listKillItem" + el.id, "#listToKill", "li", ["list-group-item"], `${el.name} ${el.surnames.surnameOne}`));
         setData.push(new DomElement("itemCarousel" + el.id, "#owlCarousel", "div"));
+        setData.push(new DomElement("listKillItem" + el.id, "#listToKill", "li", ["list-group-item"], `${el.name} ${el.surnames.surnameOne}`));
         setData.push(new DomElement("imgCarousel" + el.id, "#owlCarousel div:last-of-type", "img", ["img-fluid", "img-pumpking"], `${el.name}`));
     });
 
@@ -185,9 +191,9 @@ const setOwlCarousel = () => {
     });
 }
 
-function callback(event) {
-    position = event.item.index;
-    console.log(event.item.count);
+function callback(event){
+    position = event.item.index;    
+    console.log(event.item.index);
 }
 
 //function to kill a coder at random
@@ -208,14 +214,21 @@ const killSomeone = () => {
         }
 
     let coderToKill = searchEl("#owlCarousel .active div");
-    console.log(coderToKill.id)
-    let indexToKill = coderToKill.id.slice(-1);
 
-    sacrifices[indexToKill].killed = true
+    let indexToKill = coderToKill.id.replace(/\D/g, "");
+    
+    console.log(indexToKill)
+    let killedCoder;
+    sacrifices.forEach(el => {
+        if (el.id == indexToKill) {
+            killedCoder = el;
+            el.killed = true;
+        }
+    });
 
     owl.trigger('remove.owl.carousel', [position]).trigger('refresh.owl.carousel');
 
-    return sacrifices[indexToKill];
+    return killedCoder;
 }
 
 /* Functions to alter DOM
@@ -294,11 +307,27 @@ const hideForm = () => {
 }
 
 //function delete coders
-const deleteSacrifice = (object) => {
+const deleteSacrifice = (idToRemove) => {
     for (let i = 0; i < sacrifices.length; i++) {
-        if (object.id == sacrifices[i].id) {
-            console.log(sacrifices)
+        if (idToRemove == sacrifices[i].id) {
             sacrifices.splice(i, 1);
         }
     }
+
+    console.log(setData)
+
+    for (let i = 0; i < setData.length; i++) {
+        if (`itemCarousel${idToRemove}` == setData[i].id) {
+            setData.splice(i, 1);
+        }
+        if(`listKillItem${idToRemove}` == setData[i].id){
+            setData.splice(i, 1);
+        }
+        if(`imgCarousel${idToRemove}` == setData[i].id){
+            setData.splice(i, 1);
+        }
+    };
+
+    console.log(setData)
+    
 }
